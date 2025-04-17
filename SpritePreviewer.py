@@ -4,7 +4,7 @@ from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 
-# GitHub repository name: a8-sprite-previewer-Luke_Bode
+# GitHub repository url: https://github.com/University-of-Utah-CS3505/a8-sprite-previewer-Luke_Bode
 # There's some warnings about converting float to int and how it-
 # might be removed in future pycharm updates, but who cares
 
