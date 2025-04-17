@@ -27,21 +27,27 @@ class SpritePreview(QMainWindow):
         self.num_frames = 21
         self.frames = load_sprite('spriteImages',self.num_frames)
         self.fps_amount = 1
+        self.current_frame_num = 0
 
-        # Add any other instance variables needed to track information as the program
-        # runs here
-
-        # Make the GUI in the setupUI method
         self.setupUI()
 
 
     def setupUI(self):
-        # An application needs a central widget - often a QFrame
+
+        menubar = self.menuBar()
+        menubar.setNativeMenuBar(False)
+        file_menu = menubar.addMenu('&File')
+        pause_action = QAction('&Pause', self)
+        pause_action.triggered.connect(self.pause)
+        file_menu.addAction(pause_action)
+        exit_action = QAction('&Exit', self)
+        exit_action.triggered.connect(self.quit_program)
+        file_menu.addAction(exit_action)
+
         frame = QFrame()
 
-        #current_frame = 0
-        self.current_image = QLabel()
-        #current_image.setPixmap(self.frames[current_frame])
+        self.image = QLabel()
+        self.image.setPixmap(self.frames[self.current_frame_num])
 
         self.fps_slider = QSlider()
         self.fps_slider.setMinimum(1)
@@ -61,10 +67,15 @@ class SpritePreview(QMainWindow):
         self.animate_button.setFixedWidth(300)
         self.animate_button.clicked.connect(self.animate)
 
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.next_frame)
+        self.timer.setInterval(1000/self.fps_amount)
 
         secondary_frame = QFrame()
         secondary_frame_layout = QHBoxLayout()
-        secondary_frame_layout.addWidget(self.current_image)
+        secondary_frame_layout.setSpacing(200)
+        secondary_frame_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        secondary_frame_layout.addWidget(self.image)
         secondary_frame_layout.addWidget(self.fps_slider)
         secondary_frame.setLayout(secondary_frame_layout)
 
@@ -86,18 +97,32 @@ class SpritePreview(QMainWindow):
 
     def update_fps(self, fps_value):
         self.fps_amount = fps_value
-        print(self.fps_amount)
         self.fps_label_number.setNum(self.fps_amount)
+        self.timer.setInterval(1000/self.fps_amount)
 
     def animate(self):
         if self.animate_button.text() == "Start":
-            # start timer
+            self.timer.start()
             self.animate_button.setText("Stop")
-        if self.animate_button.text() == "Stop":
-            # stop timer
+        elif self.animate_button.text() == "Stop":
+            self.timer.stop()
             self.animate_button.setText("Start")
+        else:
+            print("button state error")
 
-    # You will need methods in the class to act as slots to connect to signals
+    def next_frame(self):
+        self.current_frame_num += 1
+        if self.current_frame_num >= len(self.frames):
+            self.current_frame_num = 0
+        self.image.setPixmap(self.frames[self.current_frame_num])
+
+    def pause(self):
+        self.timer.stop()
+        self.animate_button.setText("Start")
+
+    def quit_program(self):
+        QApplication.quit()
+
 
 
 def main():
